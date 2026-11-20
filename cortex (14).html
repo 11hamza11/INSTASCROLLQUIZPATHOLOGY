@@ -1,0 +1,2305 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Cortex Reels • عملي التشريح المرضي الخاص</title>
+<style>
+  :root {
+    --bg: #050507;
+    --card: rgba(18, 18, 24, 0.72);
+    --border: rgba(255, 255, 255, 0.14);
+    --gold: #f5c542;
+    --gold-soft: rgba(245, 197, 66, 0.18);
+    --ig1: #f09433;
+    --ig2: #dc2743;
+    --ig3: #bc1888;
+    --ok: #22c55e;
+    --bad: #ef4444;
+    --text: #f8fafc;
+    --muted: #cbd5e1;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    background: #000;
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* إطار يحاكي شاشة الهاتف على الديسكتوب وملء الشاشة على الموبايل */
+  .app-shell {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    height: 100dvh;
+    margin: 0 auto;
+    background: var(--bg);
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(245, 197, 66, 0.12);
+  }
+
+  /* الشريط العلوي */
+  .top-hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    padding: 10px 14px 8px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.88), rgba(0,0,0,0.35), transparent);
+    pointer-events: none;
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 3.5px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--gold), var(--ig2), var(--ig3));
+    transition: width 0.35s cubic-bezier(.22,1,.36,1);
+    border-radius: 99px;
+  }
+
+  .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    pointer-events: auto;
+  }
+
+  .brand-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: -0.2px;
+  }
+
+  .brand-badge {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 99px;
+    background: linear-gradient(135deg, var(--gold), #d97706);
+    color: #000;
+    font-weight: 900;
+  }
+
+  .stats-pills {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 9px;
+    border-radius: 99px;
+    background: rgba(15, 15, 22, 0.72);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    cursor: pointer;
+    color: var(--text);
+  }
+
+  .pill.filter-btn {
+    border-color: rgba(245, 197, 66, 0.45);
+    color: var(--gold);
+  }
+
+  /* حاوية السكرول العمودي (Instagram Reels Feed) */
+  .reels-feed {
+    height: 100%;
+    width: 100%;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+  }
+
+  .reels-feed::-webkit-scrollbar {
+    display: none;
+  }
+
+  .reel-slide {
+    position: relative;
+    height: 100dvh;
+    width: 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 74px 14px 86px 64px; /* مساحة للشريط الجانبي على اليسار */
+    overflow: hidden;
+  }
+
+  /* الخلفيات المتدرجة المتحركة لكل شريحة */
+  .reel-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.95;
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(65px);
+    opacity: 0.34;
+    animation: floatOrb 9s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+
+  .orb.o1 { width: 240px; height: 240px; top: -40px; right: -40px; }
+  .orb.o2 { width: 220px; height: 220px; bottom: 40px; left: -60px; animation-delay: -4s; }
+
+  @keyframes floatOrb {
+    from { transform: translate(0, 0) scale(1); }
+    to { transform: translate(18px, -24px) scale(1.12); }
+  }
+
+  /* بطاقة السؤال الزجاجية */
+  .q-card {
+    position: relative;
+    z-index: 5;
+    background: var(--card);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 22px;
+    padding: 15px 14px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.48);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: calc(100dvh - 168px);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .q-card::-webkit-scrollbar { display: none; }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .session-chip {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 99px;
+    background: var(--gold-soft);
+    color: var(--gold);
+    border: 1px solid rgba(245, 197, 66, 0.35);
+  }
+
+  .q-counter {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    background: rgba(255,255,255,0.08);
+    padding: 3px 8px;
+    border-radius: 99px;
+  }
+
+  .q-text {
+    font-size: 16.5px;
+    font-weight: 800;
+    line-height: 1.5;
+    color: #fff;
+  }
+
+  .except-tag {
+    display: inline-block;
+    background: linear-gradient(135deg, #ef4444, #be123c);
+    color: #fff;
+    padding: 1px 8px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-right: 4px;
+    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.4);
+  }
+
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .opt-btn {
+    width: 100%;
+    text-align: right;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1.2px solid rgba(255, 255, 255, 0.14);
+    color: #f8fafc;
+    border-radius: 14px;
+    padding: 11px 12px;
+    font-size: 13.5px;
+    line-height: 1.48;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    transition: transform 0.14s ease, background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .opt-btn:active { transform: scale(0.98); }
+
+  .opt-letter {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    margin-top: 1px;
+  }
+
+  .opt-btn.correct {
+    background: rgba(34, 197, 94, 0.22);
+    border-color: var(--ok);
+    box-shadow: 0 0 18px rgba(34, 197, 94, 0.25);
+  }
+  .opt-btn.correct .opt-letter {
+    background: var(--ok);
+    color: #03190b;
+  }
+
+  .opt-btn.wrong {
+    background: rgba(239, 68, 68, 0.22);
+    border-color: var(--bad);
+    animation: shake 0.36s ease;
+  }
+  .opt-btn.wrong .opt-letter {
+    background: var(--bad);
+    color: #fff;
+  }
+
+  .opt-btn.dim { opacity: 0.55; }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    45% { transform: translateX(6px); }
+    70% { transform: translateX(-4px); }
+  }
+
+  .feedback-box {
+    display: none;
+    background: rgba(0, 0, 0, 0.48);
+    border-right: 3.5px solid var(--gold);
+    border-radius: 12px;
+    padding: 10px 11px;
+    font-size: 12.6px;
+    line-height: 1.55;
+    color: #e2e8f0;
+    animation: fadeUp 0.28s ease;
+  }
+
+  .feedback-box.show { display: block; }
+  .feedback-box strong { color: var(--gold); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* الشريط الجانبي على اليسار (مطابق لتصميم انستغرام عربي) */
+  .side-actions {
+    position: absolute;
+    left: 10px;
+    bottom: 92px;
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .action-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(15, 15, 22, 0.55);
+    border: 1px solid rgba(255,255,255,0.16);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    transition: transform 0.18s ease, background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .action-item:active .action-icon { transform: scale(0.86); }
+  .action-item.active .action-icon {
+    border-color: var(--gold);
+    background: rgba(245, 197, 66, 0.22);
+  }
+  .action-item.liked .action-icon {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.25);
+    animation: pop 0.3s ease;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.28); }
+    100% { transform: scale(1); }
+  }
+
+  .action-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+  }
+
+  .audio-disc {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.75);
+    background: linear-gradient(135deg, var(--gold), var(--ig2), var(--ig3));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    animation: spinDisc 5s linear infinite;
+  }
+
+  @keyframes spinDisc {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* أسفل الريل (الحساب والوصف وشريط الصوت) */
+  .reel-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 12;
+    padding: 16px 14px 14px 66px;
+    background: linear-gradient(to top, rgba(0,0,0,0.92), rgba(0,0,0,0.45), transparent);
+    pointer-events: none;
+  }
+
+  .creator-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+    pointer-events: auto;
+  }
+
+  .avatar-ring {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    padding: 2px;
+    background: linear-gradient(45deg, var(--ig1), var(--ig2), var(--ig3));
+    flex-shrink: 0;
+  }
+
+  .avatar-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--gold);
+  }
+
+  .creator-name {
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .verified {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #3897f0;
+    color: #fff;
+    font-size: 9px;
+  }
+
+  .follow-btn {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.65);
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .follow-btn.following {
+    background: rgba(255,255,255,0.16);
+    border-color: transparent;
+    color: var(--gold);
+  }
+
+  .caption-line {
+    font-size: 12px;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 5px;
+  }
+
+  .audio-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #cbd5e1;
+    overflow: hidden;
+  }
+
+  .eq-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 12px;
+  }
+
+  .eq-bars span {
+    width: 2.5px;
+    background: var(--gold);
+    border-radius: 2px;
+    animation: eq 0.9s ease-in-out infinite alternate;
+  }
+  .eq-bars span:nth-child(2) { animation-delay: 0.25s; }
+  .eq-bars span:nth-child(3) { animation-delay: 0.5s; }
+
+  @keyframes eq {
+    from { height: 3px; }
+    to { height: 12px; }
+  }
+
+  /* قلب الضغط المزدوج */
+  .big-heart {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 96px;
+    z-index: 40;
+    pointer-events: none;
+    filter: drop-shadow(0 0 24px rgba(239, 68, 68, 0.8));
+    opacity: 0;
+  }
+
+  .big-heart.burst {
+    animation: heartBurst 0.8s cubic-bezier(.17,.89,.32,1.28) forwards;
+  }
+
+  @keyframes heartBurst {
+    0% { transform: translate(-50%, -50%) scale(0.2) rotate(-12deg); opacity: 0; }
+    35% { transform: translate(-50%, -50%) scale(1.18) rotate(6deg); opacity: 1; }
+    65% { transform: translate(-50%, -50%) scale(0.98) rotate(0deg); opacity: 1; }
+    100% { transform: translate(-50%, -68%) scale(1.3); opacity: 0; }
+  }
+
+  /* مؤشر السحب لأعلى في أول شريحة */
+  .swipe-hint {
+    position: absolute;
+    bottom: 68px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 16;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.75);
+    background: rgba(0,0,0,0.5);
+    padding: 4px 12px;
+    border-radius: 99px;
+    border: 1px solid rgba(255,255,255,0.14);
+    animation: bounceUp 1.6s infinite;
+    pointer-events: none;
+  }
+
+  @keyframes bounceUp {
+    0%, 100% { transform: translate(-50%, 0); }
+    50% { transform: translate(-50%, -6px); }
+  }
+
+  /* شريحة النتيجة النهائية */
+  .summary-card {
+    position: relative;
+    z-index: 5;
+    background: rgba(15, 15, 24, 0.86);
+    border: 1px solid rgba(245, 197, 66, 0.35);
+    backdrop-filter: blur(20px);
+    border-radius: 26px;
+    padding: 22px 18px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-left: -48px; /* توسيط كامل في شريحة النهاية */
+  }
+
+  .score-ring {
+    width: 116px;
+    height: 116px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: conic-gradient(var(--gold) 0deg, rgba(255,255,255,0.12) 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .score-ring::after {
+    content: "";
+    position: absolute;
+    inset: 9px;
+    border-radius: 50%;
+    background: #0d0d14;
+  }
+
+  .score-val {
+    position: relative;
+    z-index: 2;
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--gold);
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .stat-box {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 6px;
+  }
+
+  .stat-box .num { font-size: 18px; font-weight: 900; color: #fff; }
+  .stat-box .lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .primary-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, var(--gold), #eab308);
+    color: #000;
+    font-weight: 900;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .secondary-btn {
+    width: 100%;
+    padding: 11px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* النافذة السفلية (فلتر الجلسات أو الملاحظات الكاملة للمحضر) */
+  .sheet-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  .bottom-sheet {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 55;
+    background: #12121a;
+    border-top: 1px solid rgba(255,255,255,0.18);
+    border-radius: 24px 24px 0 0;
+    padding: 12px 16px 22px;
+    max-height: 76dvh;
+    overflow-y: auto;
+    transform: translateY(105%);
+    transition: transform 0.3s cubic-bezier(.22,1,.36,1);
+  }
+
+  .bottom-sheet.open { transform: translateY(0); }
+
+  .sheet-handle {
+    width: 42px;
+    height: 4px;
+    background: rgba(255,255,255,0.28);
+    border-radius: 99px;
+    margin: 0 auto 12px;
+  }
+
+  .sheet-title {
+    font-size: 15px;
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .filter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .filter-chip {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--border);
+    color: #fff;
+    border-radius: 12px;
+    padding: 10px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: right;
+    font-family: inherit;
+  }
+
+  .filter-chip.active {
+    background: var(--gold-soft);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .notes-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .notes-list li {
+    background: rgba(255,255,255,0.06);
+    border-right: 3px solid var(--gold);
+    padding: 9px 11px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #f1f5f9;
+  }
+
+  /* Toast إشعارات سريعة */
+  .toast {
+    position: absolute;
+    top: 66px;
+    left: 50%;
+    transform: translate(-50%, -14px);
+    z-index: 60;
+    background: rgba(20, 20, 28, 0.94);
+    border: 1px solid var(--gold);
+    color: #fff;
+    padding: 7px 14px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  #confettiCanvas {
+    position: absolute;
+    inset: 0;
+    z-index: 45;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- الشريط العلوي -->
+  <div class="top-hud">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="top-row">
+      <div class="brand-title">
+        <span>Reels</span>
+        <span class="brand-badge">CORTEX</span>
+      </div>
+      <div class="stats-pills">
+        <div class="pill" title="النقاط">🏆 <span id="scoreVal">0</span></div>
+        <div class="pill" title="سلسلة الإجابات الصحيحة">🔥 <span id="streakVal">0</span></div>
+        <button class="pill filter-btn" id="openFilterBtn">📂 الجلسات</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <div class="big-heart" id="bigHeart">❤️</div>
+
+  <!-- تغذية الريلز -->
+  <main class="reels-feed" id="reelsFeed"></main>
+
+  <!-- خلفية النافذة السفلية -->
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+
+  <!-- نافذة فلترة الجلسات -->
+  <div class="bottom-sheet" id="filterSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">
+      <span>📂 تصفية حسب الجلسة (39 محضراً)</span>
+      <span style="font-size:12px; color:#94a3b8; cursor:pointer;" onclick="closeSheets()">إغلاق ✕</span>
+    </div>
+    <div class="filter-grid" id="filterGrid"></div>
+  </div>
+
+  <!-- نافذة الشرح النسيجي الكامل للمحضر -->
+  <div class="bottom-sheet" id="notesSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">
+      <span id="notesTitle">🔬 الموجودات النسيجية الكاملة</span>
+      <span style="font-size:12px; color:#94a3b8; cursor:pointer;" onclick="closeSheets()">إغلاق ✕</span>
+    </div>
+    <ul class="notes-list" id="notesList"></ul>
+  </div>
+</div>
+
+<script>
+/* ===== قاعدة بيانات الأسئلة الشاملة لكل محضرات الجلسات التسعة (39 سؤالاً) ===== */
+const ALL_QUESTIONS = [
+  /* مقدمة هامة: الكشم الخلوي */
+  {
+    id: 0,
+    sessionKey: "s0",
+    session: "مقدمة هامة • الكشم الخلوي",
+    slide: "علامات الكشم الخلوي",
+    bg: "linear-gradient(155deg, #1a1026 0%, #09090f 55%, #241908 100%)",
+    c1: "#f5c542", c2: "#a855f7",
+    q: "عندما ترد جملة «كشم خلوي» في وصف المحضرات، كل ما يلي من العلامات الواجب تعدادها عدا:",
+    options: [
+      "زيادة حجم النواة وزيادة نسبة النواة إلى الهيولى",
+      "كروماتين كثيف شاذ أغمق من الطبيعي ووضوح النوية",
+      "الحفاظ على الاستقطاب الخلوي وثبات أشكال وأحجام الخلايا",
+      "اختلاف أشكال وأحجام الخلايا مع انقسامات شاذة وفقدان الاستقطاب"
+    ],
+    ans: 2,
+    exp: "في الكشم الخلوي يحدث «فقدان الاستقطاب» و«اختلاف أشكال وأحجام الخلايا» وليس الحفاظ عليها.",
+    notes: [
+      "1- زيادة حجم النواة وزيادة نسبة النواة إلى الهيولى.",
+      "2- اختلاف أشكال وأحجام الخلايا.",
+      "3- كروماتين كثيف شاذ أغمق من الطبيعي.",
+      "4- انقسامات شاذة في الخلايا.",
+      "5- وضوح النوية.",
+      "6- فقدان الاستقطاب."
+    ]
+  },
+
+  /* الجلسة الأولى: آفات العقد اللمفية (4 محضرات) */
+  {
+    id: 1,
+    sessionKey: "s1",
+    session: "الجلسة 1 • آفات العقد اللمفية",
+    slide: "فرط التنسج اللمفي الجرابي",
+    bg: "linear-gradient(155deg, #1b0b2e 0%, #090b16 55%, #0a1f2c 100%)",
+    c1: "#c084fc", c2: "#38bdf8",
+    q: "كل ما يلي صحيح حول «فرط التنسج اللمفي الجرابي (فرط تصنع العقدة اللمفية)» عدا:",
+    options: [
+      "زيادة حجم وعدد الأجربة اللمفية في العقدة",
+      "زيادة اتساع المراكز المنتشة (النيرة) في الجراب اللمفي",
+      "زيادة عدد الخلايا اللمفية",
+      "غياب البنية الطبيعية للعقدة ووجود خلايا ريد ستيرنبرغ"
+    ],
+    ans: 3,
+    exp: "غياب البنية الطبيعية للعقدة ووجود خلايا ريد ستيرنبرغ من صفات لمفوما هودجكن وليست من فرط التنسج اللمفي الجرابي.",
+    notes: [
+      "زيادة حجم وعدد الأجربة اللمفية في العقدة.",
+      "زيادة اتساع المراكز المنتشة (النيرة) في الجراب اللمفي.",
+      "زيادة عدد الخلايا اللمفية."
+    ]
+  },
+  {
+    id: 2,
+    sessionKey: "s1",
+    session: "الجلسة 1 • آفات العقد اللمفية",
+    slide: "سل العقدة اللمفية",
+    bg: "linear-gradient(155deg, #240b24 0%, #090912 55%, #2b1018 100%)",
+    c1: "#f472b6", c2: "#fb7185",
+    q: "كل ما يلي يُرى في الحبيبوم الخاص في «سل العقدة اللمفية» عدا:",
+    options: [
+      "النخر التجبني",
+      "أشكال غدية غير نموذجية وعلامات الكشم الخلوي",
+      "خلايا لمفية وخلايا نظيرة بشرة",
+      "خلايا عرطلة نموذج لانغهانس"
+    ],
+    ans: 1,
+    exp: "الأشكال الغدية غير النموذجية وعلامات الكشم الخلوي تميز النقيلة السرطانية للعقدة اللمفية وليس السل.",
+    notes: [
+      "النخر التجبني.",
+      "خلايا لمفية.",
+      "خلايا نظيرة بشرة.",
+      "خلايا عرطلة نموذج لانغهانس."
+    ]
+  },
+  {
+    id: 3,
+    sessionKey: "s1",
+    session: "الجلسة 1 • آفات العقد اللمفية",
+    slide: "لمفوما هودجكن",
+    bg: "linear-gradient(155deg, #1e0a29 0%, #0c0a17 55%, #29160a 100%)",
+    c1: "#a855f7", c2: "#f59e0b",
+    q: "كل ما يلي صحيح حول «لمفوما هودجكن» عدا:",
+    options: [
+      "بقاء البنية الطبيعية العامة للعقدة اللمفية سليمة تماماً",
+      "رشاحة التهابية متعددة الأنواع (لمفاويات، مصوريات، عدلات، حمضات، ناسجات)",
+      "وجود خلية ريد ستيرنبرغ الشرطية للتشخيص (مومياوي / حبة البوشار / السلة المليئة بالبيض)",
+      "وجود الأنماط الأخرى من الخلايا الكبيرة اللانموذجية مع نخر وحجب ليفية"
+    ],
+    ans: 0,
+    exp: "في لمفوما هودجكن يحدث «غياب للبنية الطبيعية العامة للعقدة اللمفية» وليس بقاءها سليمة.",
+    notes: [
+      "غياب البنية الطبيعية العامة للعقدة اللمفية.",
+      "رشاحة التهابية متعددة الأنواع من اللمفاويات والمصوريات والعدلات والحمضات والناسجات.",
+      "وجود خلية ريد ستيرنبرغ الشرطية للتشخيص (شكل مومياوي / حبة البوشار / السلة المليئة بالبيض).",
+      "وجود الأنماط الأخرى من الخلايا الكبيرة اللانموذجية.",
+      "وجود نخر وحجب ليفية."
+    ]
+  },
+  {
+    id: 4,
+    sessionKey: "s1",
+    session: "الجلسة 1 • آفات العقد اللمفية",
+    slide: "نقيلة سرطانية للعقدة اللمفية",
+    bg: "linear-gradient(155deg, #2b0a18 0%, #090910 55%, #190d2b 100%)",
+    c1: "#ef4444", c2: "#c084fc",
+    q: "كل ما يلي صحيح حول «نقيلة سرطانية للعقدة اللمفية» عدا:",
+    options: [
+      "وجود أشكال غدية غير نموذجية ضمن نسيج العقدة",
+      "إمكانية وجود نخر داخل النقائل",
+      "وجود حبيبوم نوعي يحوي نخر تجبني وخلايا لانغهانس",
+      "ظهور علامات الكشم الخلوي"
+    ],
+    ans: 2,
+    exp: "الحبيبوم النوعي ذو النخر التجبني وخلايا لانغهانس خاص بسل العقدة اللمفية وليس النقيلة السرطانية.",
+    notes: [
+      "وجود أشكال غدية غير نموذجية ضمن نسيج العقدة.",
+      "إمكانية وجود نخر داخل النقائل.",
+      "علامات الكشم الخلوي (الستة)."
+    ]
+  },
+
+  /* الجلسة الثانية: كولونات و أوعية (6 محضرات) */
+  {
+    id: 5,
+    sessionKey: "s2",
+    session: "الجلسة 2 • كولونات وأوعية",
+    slide: "السلائل الغدية الكولونية (البوليبات)",
+    bg: "linear-gradient(155deg, #0b2429 0%, #070b12 55%, #17122b 100%)",
+    c1: "#14b8a6", c2: "#6366f1",
+    q: "كل ما يلي صحيح حول «السلائل الغدية الكولونية (البوليبات في الكولون)» عدا:",
+    options: [
+      "لها نمطان أحدهما لاطئ والآخر ذو سويقة واضحة",
+      "النمط الأول امتدادات إصبعية على حساب الطبقة المخاطية فقط وليس لها سويقة",
+      "النمط الثاني ورمي مختلط يمتلك سويقة واضحة متألف من أنابيب متكاثرة",
+      "تغزو جدار الأمعاء والأوعية اللمفية بشدة مع استجابة لحمية مصنعة لليف"
+    ],
+    ans: 3,
+    exp: "غزو جدار الأمعاء والأوعية اللمفية والاستجابة اللحمية المصنعة لليف هي صفات السرطانة الغدية في الكولون وليست البوليبات.",
+    notes: [
+      "لها نمطان:",
+      "الأول: امتدادات إصبعية على حساب الطبقة المخاطية فقط وليس لها سويقة (لاطئة).",
+      "الثاني: نمط ورمي مختلط يمتلك سويقة واضحة متألف من أنابيب متكاثرة."
+    ]
+  },
+  {
+    id: 6,
+    sessionKey: "s2",
+    session: "الجلسة 2 • كولونات وأوعية",
+    slide: "السرطانة الغدية في الكولون",
+    bg: "linear-gradient(155deg, #2d0b14 0%, #0a0910 55%, #1f1408 100%)",
+    c1: "#f43f5e", c2: "#f59e0b",
+    q: "كل ما يلي صحيح حول «السرطانة الغدية في الكولون» عدا:",
+    options: [
+      "كتلة بوليبية بارزة ضمن اللمعة ومتنخرة مع غزو جدار الأمعاء واستجابة لحمية مصنعة لليف",
+      "تقتصر على الطبقة المخاطية فقط مع الحفاظ على القطبية الخلوية دون غزو وعائي",
+      "تشكل غدي لانمطي وخباثة نووية واضحة وفقدان القطبية الخلوية وتعدد الأشكال",
+      "غزو الأوعية اللمفية بالخلايا السرطانية وظهور علامات الكشم الخلوي"
+    ],
+    ans: 1,
+    exp: "السرطانة الغدية في الكولون تغزو جدار الأمعاء والأوعية اللمفية وتبدي فقداناً واضحاً للقطبية الخلوية.",
+    notes: [
+      "كتلة بوليبية بارزة ضمن اللمعة ومتنخرة.",
+      "غزو السرطانة لجدار الأمعاء واستجابة لحمية مصنعة لليف.",
+      "التشكل الغدي اللانمطي وخباثة نووية واضحة.",
+      "فقدان القطبية الخلوية وتعدد الأشكال.",
+      "غزو الأوعية اللمفية بالخلايا السرطانية وعلامات الكشم الخلوي."
+    ]
+  },
+  {
+    id: 7,
+    sessionKey: "s2",
+    session: "الجلسة 2 • كولونات وأوعية",
+    slide: "التهاب المرارة المزمن",
+    bg: "linear-gradient(155deg, #0b2618 0%, #080c10 55%, #241b09 100%)",
+    c1: "#10b981", c2: "#f5c542",
+    q: "كل ما يلي صحيح حول «التهاب المرارة المزمن» عدا:",
+    options: [
+      "ضمور وترقق الطبقة العضلية الملساء لجدار المرارة مع غياب التليف النسيجي",
+      "ارتشاح التهابي مزمن مع خلايا مصورية بلازمية في المخاطية وتحت المخاطية والصفيحة الخاصة والعضلية أحياناً",
+      "تليف نسيجي واسع وتسمك وتضخم في الطبقة العضلية الملساء لجدار المرارة",
+      "انغلافات مخاطية عميقة عبر ألياف الجدار العضلي المتسمك مشكلة جيوب روكيتانسكي أشوف المميزة"
+    ],
+    ans: 0,
+    exp: "في التهاب المرارة المزمن يحدث «تسمك وتضخم في الطبقة العضلية الملساء» و«تليف نسيجي واسع» وليس ضموراً وترققاً.",
+    notes: [
+      "ارتشاح مزمن للخلايا وحيدة النوى وخلايا مصورية بلازمية في المخاطية وتحت المخاطية وضمن الصفيحة الخاصة والطبقة العضلية أحياناً.",
+      "تليف نسيجي واسع.",
+      "تسمك وتضخم في الطبقة العضلية الملساء لجدار المرارة.",
+      "انغلافات مخاطية عميقة تنفذ عبر ألياف الجدار العضلي المتسمك مشكلة جيوب روكيتانسكي أشوف المميزة لهذه الآفة."
+    ]
+  },
+  {
+    id: 8,
+    sessionKey: "s2",
+    session: "الجلسة 2 • كولونات وأوعية",
+    slide: "التصلب العصيدي",
+    bg: "linear-gradient(155deg, #291c08 0%, #090a0f 55%, #260d12 100%)",
+    c1: "#f5c542", c2: "#ef4444",
+    q: "كل ما يلي صحيح حول «التصلب العصيدي» عدا:",
+    options: [
+      "يمتلك قبعة ليفية مكونة من ألياف كولاجين وأرومات الليف وخلايا عضلية ملساء",
+      "يتكون لب (مركز) العصيدة من إبر كوليسترولية",
+      "يتكون لب العصيدة من شعيرات دموية سليمة متوسعة ضمن نسيج ضام رخو فقط",
+      "يحوي لب العصيدة على بالعات رغوية وحطام خلوي"
+    ],
+    ans: 2,
+    exp: "لب العصيدة يتكون من إبر كوليسترولية وبالعات رغوية وحطام خلوي، بينما الشعيرات الدموية في نسيج ضام رخو تخص الورم الوعائي الشعري.",
+    notes: [
+      "قبعة ليفية مكونة من ألياف كولاجين وأرومات الليف وخلايا عضلية ملساء.",
+      "لب (مركز) العصيدة مكون من إبر كوليسترولية وبالعات رغوية وحطام خلوي."
+    ]
+  },
+  {
+    id: 9,
+    sessionKey: "s2",
+    session: "الجلسة 2 • كولونات وأوعية",
+    slide: "الورم الوعائي الشعري",
+    bg: "linear-gradient(155deg, #2b0917 0%, #0b0a14 55%, #0c1d2b 100%)",
+    c1: "#fb7185", c2: "#38bdf8",
+    q: "كل ما يلي صحيح حول «الورم الوعائي الشعري» عدا:",
+    options: [
+      "ورم سليم يحدث على حساب الشعيرات الدموية ويصيب الجلد والأغشية المخاطية",
+      "يحدث بشكل خلقي ويتراجع عفوياً ويصيب الأعمار الصغيرة",
+      "النسيج الضام فيه رخو قليل الكثافة ويبدو تحت المجهر كدوائر صغيرة هي لمعة الشعيرات الدموية",
+      "يحدث على حساب الأوردة لأسباب وراثية ويصيب الأعمار الكبيرة ويحتاج لتدخل جراحي"
+    ],
+    ans: 3,
+    exp: "الحدوث على حساب الأوردة لأسباب وراثية في الأعمار الكبيرة والحاجة للتدخل الجراحي هي صفات «الورم الوعائي الكهفي» لا الشعري.",
+    notes: [
+      "يحدث على حساب الشعيرات الدموية وهو سليم يصيب الجلد والأغشية المخاطية.",
+      "يحدث بشكل خلقي ويتراجع عفوياً ويصيب الأعمار الصغيرة.",
+      "نسيجياً: النسيج الضام فيه رخو قليل الكثافة ويبدو تحت المجهر كدوائر صغيرة هي لمعة الشعيرات الدموية."
+    ]
+  },
+  {
+    id: 10,
+    sessionKey: "s2",
+    session: "الجلسة 2 • كولونات وأوعية",
+    slide: "الورم الوعائي الكهفي",
+    bg: "linear-gradient(155deg, #240812 0%, #090810 55%, #1d102b 100%)",
+    c1: "#dc2626", c2: "#818cf8",
+    q: "كل ما يلي صحيح حول «الورم الوعائي الكهفي» عدا:",
+    options: [
+      "ورم سليم حجمه كبير يصيب الأحشاء والجلد والأعمار الأكبر",
+      "يحدث بشكل خلقي على حساب الشعيرات الدموية ويتراجع عفوياً ونسيجه الضام رخو",
+      "النسيج الضام فيه كثيف",
+      "يحدث على حساب الأوردة لأسباب وراثية ويحتاج لتدخل جراحي"
+    ],
+    ans: 1,
+    exp: "الورم الوعائي الكهفي نسيجه الضام كثيف، يحدث على حساب الأوردة لأسباب وراثية ولا يتراجع عفوياً بل يحتاج لتدخل جراحي.",
+    notes: [
+      "ورم سليم وحجمه كبير.",
+      "النسيج الضام فيه كثيف.",
+      "يصيب الأحشاء والجلد ويصيب الأعمار الكبيرة/الأكبر.",
+      "يحدث على حساب الأوردة لأسباب وراثية ويحتاج لتدخل جراحي."
+    ]
+  },
+
+  /* الجلسة الثالثة: الكبد وغدد لعابية (5 محضرات) */
+  {
+    id: 11,
+    sessionKey: "s3",
+    session: "الجلسة 3 • الكبد وغدد لعابية",
+    slide: "تشحم الكبد",
+    bg: "linear-gradient(155deg, #2b2108 0%, #0b0b10 55%, #112218 100%)",
+    c1: "#facc15", c2: "#34d399",
+    q: "كل ما يلي صحيح حول «تشحم الكبد» عدا:",
+    options: [
+      "تشكل عقيدات تجددية خالية من الوريد المركزي محاطة بتليف واسع ومسافات بابية متليفة",
+      "تبقى بنية الكبد طبيعية وسليمة والمسافات البابية كما هي",
+      "تراكم للشحوم الثلاثية بشكل قطيرات داخل هيولى الخلايا الكبدية فتبدو بلون أبيض",
+      "تُدفع النواة للمحيط وتبقى موجودة ولم تتأذَ"
+    ],
+    ans: 0,
+    exp: "العقيدات التجددية الخالية من الوريد المركزي والتليف والمسافات البابية المتليفة هي صفات «تشمع الكبد» لا تشحمه.",
+    notes: [
+      "تبقى بنية الكبد طبيعية وسليمة.",
+      "تراكم للشحوم الثلاثية بشكل قطيرات داخل هيولى الخلايا الكبدية وتدفع النواة للمحيط فتبدو الخلايا بلون أبيض.",
+      "النواة موجودة ولم تتأذَ.",
+      "المسافات البابية كما هي."
+    ]
+  },
+  {
+    id: 12,
+    sessionKey: "s3",
+    session: "الجلسة 3 • الكبد وغدد لعابية",
+    slide: "تشمع الكبد",
+    bg: "linear-gradient(155deg, #24180a 0%, #090910 55%, #2b0f0f 100%)",
+    c1: "#f59e0b", c2: "#f87171",
+    q: "كل ما يلي صحيح حول «تشمع الكبد» عدا:",
+    options: [
+      "العقيدات التجددية التي لا تحتوي على وريد مركزي ويحيط بها التليف",
+      "مسافات بابية متليفة مع رشاحة التهابية لمفاوية مصورية في التليف",
+      "بقاء بنية الكبد والمسافات البابية طبيعية وسليمة تماماً دون أي تليف",
+      "مناطق نخر وتكاثر أقنية صفراوية"
+    ],
+    ans: 2,
+    exp: "في تشمع الكبد تتخرب البنية الكبدية بتليف يحيط بالعقيدات التجددية وتتليف المسافات البابية، بينما البنية السليمة تخص تشحم الكبد.",
+    notes: [
+      "العقيدات التجددية التي لا تحتوي على وريد مركزي.",
+      "تليف يحيط بالعقيدات.",
+      "مناطق نخر.",
+      "مسافات بابية متليفة.",
+      "رشاحة التهابية لمفاوية مصورية في التليف.",
+      "تكاثر أقنية صفراوية."
+    ]
+  },
+  {
+    id: 13,
+    sessionKey: "s3",
+    session: "الجلسة 3 • الكبد وغدد لعابية",
+    slide: "سرطانة بدئية في الكبد",
+    bg: "linear-gradient(155deg, #2b1208 0%, #0a0910 55%, #240b1c 100%)",
+    c1: "#fb923c", c2: "#e879f9",
+    q: "كل ما يلي صحيح حول «السرطانة البدئية في الكبد» عدا:",
+    options: [
+      "أشكال حاجزية وأشكال غدية بشكل الزهرة وخلايا مفردة",
+      "وجود الصفراء ضمن الخلايا الورمية",
+      "مناطق من النخر والنزف",
+      "غياب الصفراء تماماً ضمن الخلايا الورمية مع وجود نسيج غضروفي وعظمي"
+    ],
+    ans: 3,
+    exp: "من العلامات المميزة في السرطانة البدئية في الكبد «وجود الصفراء ضمن الخلايا الورمية»، أما النسيج الغضروفي والعظمي فيخص الورم المختلط للنكفية (أو ويلمز).",
+    notes: [
+      "أشكال حاجزية.",
+      "أشكال غدية بشكل الزهرة.",
+      "خلايا مفردة.",
+      "وجود الصفراء ضمن الخلايا الورمية.",
+      "مناطق من النخر والنزف."
+    ]
+  },
+  {
+    id: 14,
+    sessionKey: "s3",
+    session: "الجلسة 3 • الكبد وغدد لعابية",
+    slide: "ورم مختلط في الغدة النكفية",
+    bg: "linear-gradient(155deg, #0b1f2e 0%, #080a12 55%, #23112b 100%)",
+    c1: "#38bdf8", c2: "#c084fc",
+    q: "كل ما يلي صحيح حول «الورم المختلط في الغدة النكفية» عدا:",
+    options: [
+      "وجود حبال من الخلايا البشروية وأشكال غدية",
+      "مسافات كيسية حليمية مبطنة بظهارة مزدوجة محاطة بنسيج لمفي كثيف يشكل جريبات لمفاوية",
+      "إمكانية وجود نسيج غضروفي وأحياناً عظمي",
+      "وجود بحيرات مخاطية وأوعية دموية"
+    ],
+    ans: 1,
+    exp: "المسافات الكيسية الحليمية المبطنة بظهارة مزدوجة والمحاطة بنسيج لمفي كثيف وجريبات لمفاوية هي وصف «ورم وارطن» وليست الورم المختلط.",
+    notes: [
+      "حبال من الخلايا البشروية.",
+      "أشكال غدية.",
+      "إمكانية وجود نسيج غضروفي وأحياناً عظمي.",
+      "بحيرات مخاطية.",
+      "أوعية دموية."
+    ]
+  },
+  {
+    id: 15,
+    sessionKey: "s3",
+    session: "الجلسة 3 • الكبد وغدد لعابية",
+    slide: "ورم وارطن في الغدة اللعابية",
+    bg: "linear-gradient(155deg, #1b0e2e 0%, #090a12 55%, #0c2620 100%)",
+    c1: "#a78bfa", c2: "#2dd4bf",
+    q: "كل ما يلي صحيح حول «ورم وارطن في الغدة اللعابية» عدا:",
+    options: [
+      "ورم خبيث يتميز ببحيرات مخاطية ونسيج غضروفي وعظمي دون نسيج لمفي",
+      "ورم سليم يصيب الغدة النكفية غالباً",
+      "يتميز بمسافات كيسية حليمية مبطنة بظهارة مزدوجة",
+      "محاط بنسيج لمفي كثيف يشكل جريبات لمفاوية"
+    ],
+    ans: 0,
+    exp: "ورم وارطن ورم سليم يصيب النكفية غالباً ومحاط بنسيج لمفي كثيف، أما البحيرات المخاطية والنسيج الغضروفي والعظمي فتميّز الورم المختلط.",
+    notes: [
+      "ورم سليم يصيب النكفية غالباً.",
+      "يتميز بمسافات كيسية حليمية مبطنة بظهارة مزدوجة.",
+      "محاط بنسيج لمفي كثيف يشكل جريبات لمفاوية."
+    ]
+  },
+
+  /* الجلسة الرابعة: الجهاز التناسلي الأنثوي (4 محضرات) */
+  {
+    id: 16,
+    sessionKey: "s4",
+    session: "الجلسة 4 • التناسلي الأنثوي",
+    slide: "فرط تصنع باطن الرحم",
+    bg: "linear-gradient(155deg, #2b0c22 0%, #0a0912 55%, #1f142e 100%)",
+    c1: "#ec4899", c2: "#8b5cf6",
+    q: "كل ما يلي صحيح حول «فرط تصنع باطن الرحم» عدا:",
+    options: [
+      "زيادة في عدد الغدد مختلف حسب الدرجة وبعضها متوسع بشكل كيسي مع نقص في اللحمة (stroma)",
+      "تتراوح البشرة الظهارية من أسطوانية إلى مطبقة تطبيقاً كاذباً",
+      "ارتشاح غدد غير نموذجية وحبال خلوية ضمن اللحمة مع ظهور علامات الكشم الخلوي",
+      "زيادة حجم النوى وزيادة التصبغ لكنها ليست ورمية وإنما ناجمة عن فرط التصنع (hyperplasia)"
+    ],
+    ans: 2,
+    exp: "ارتشاح الغدد غير النموذجية والحبال الخلوية وعلامات الكشم الخلوي تخص «السرطانة الغدية في باطن الرحم» لا فرط التصنع.",
+    notes: [
+      "زيادة في عدد الغدد مختلف حسب الدرجة.",
+      "بعض الغدد تكون متوسعة بشكل كيسي.",
+      "زيادة حجم النوى وزيادة التصبغ لكنها ليست ورمية وإنما ناجمة عن فرط التصنع (hyperplasia).",
+      "نقص في اللحمة (stroma).",
+      "تتراوح البشرة الظهارية من أسطوانية إلى مطبقة تطبيقاً كاذباً."
+    ]
+  },
+  {
+    id: 17,
+    sessionKey: "s4",
+    session: "الجلسة 4 • التناسلي الأنثوي",
+    slide: "السرطانة الغدية في باطن الرحم",
+    bg: "linear-gradient(155deg, #300a19 0%, #09080f 55%, #24130a 100%)",
+    c1: "#f43f5e", c2: "#f5c542",
+    q: "كل ما يلي صحيح حول «السرطانة الغدية في باطن الرحم» عدا:",
+    options: [
+      "غدد غير نموذجية ذات أشكال وأحجام مختلفة مرتشحة ضمن اللحمة وأشكال غدية مثقبة",
+      "حبال خلوية وخلايا مفردة ومناطق من النخر والنزف وإمكانية حدوث خثرات بالأوعية الدموية",
+      "نمط بنيوي غدي شاذ زغابي حليمي متجمعة بشكل مزدحم مع ظهور علامات الكشم الخلوي",
+      "غياب علامات الكشم الخلوي وزيادة تصبغ النوى تكون سليمة ناتجة عن فرط تصنع فقط"
+    ],
+    ans: 3,
+    exp: "السرطانة الغدية في باطن الرحم تبدي علامات الكشم الخلوي بوضوح، بخلاف فرط تصنع باطن الرحم السليم.",
+    notes: [
+      "غدد غير نموذجية ذات أشكال وأحجام مختلفة مرتشحة ضمن اللحمة.",
+      "أشكال غدية مثقبة.",
+      "حبال خلوية وخلايا مفردة.",
+      "مناطق من النخر والنزف وإمكانية حدوث خثرات بالأوعية الدموية.",
+      "نمط بنيوي غدي شاذ زغابي حليمي متجمعة بشكل مزدحم.",
+      "ظهور علامات الكشم الخلوي."
+    ]
+  },
+  {
+    id: 18,
+    sessionKey: "s4",
+    session: "الجلسة 4 • التناسلي الأنثوي",
+    slide: "الرحى العدارية (التامة والجزئية)",
+    bg: "linear-gradient(155deg, #0d262b 0%, #090a12 55%, #290e26 100%)",
+    c1: "#22d3ee", c2: "#f472b6",
+    q: "كل ما يلي صحيح حول «الرحى العدارية (التامة والجزئية)» عدا:",
+    options: [
+      "يشترك النوعان بتوسع الزغابات المشيمية مع غياب الوعاء المركزي وتكاثر خلايا الطبقة الاغتذائية",
+      "في الرحى الجزئية تشمل وذمة الزغابات كامل الزغابات وتكون اللانموذجية الخلوية شديدة ومنتشرة",
+      "في الرحى التامة تشمل الوذمة كامل الزغابات وتكاثر الأرومة الغاذية منتشر ومحيطي مع وجود لانموذجية خلوية",
+      "في الرحى الجزئية تكون الوذمة ببعض الزغابات فقط وتكاثر الأرومة الغاذية بؤري وخفيف واللانموذجية الخلوية غائبة تماماً"
+    ],
+    ans: 1,
+    exp: "في الرحى الجزئية تشمل الوذمة بعض الزغابات فقط مع الحفاظ على حجم الزغابات، واللانموذجية الخلوية «غائبة تماماً» (عكس التامة).",
+    notes: [
+      "المشترك بالنوعين: توسع في الزغابات المشيمية مع غياب الوعاء المركزي + تكاثر في خلايا الطبقة الاغتذائية.",
+      "الرحى التامة: وذمة تشمل كامل الزغابات + تكاثر الأرومة الغاذية منتشر ومحيطي + يوجد لانموذجية خلوية.",
+      "الرحى الجزئية: التكاثر في الطبقة المغذية الخلوية والمخلوية مع الحفاظ على حجم الزغابات + وذمة ببعض الزغابات فقط + تكاثر الأرومة الغاذية بؤري وخفيف + اللانموذجية الخلوية غائبة تماماً."
+    ]
+  },
+  {
+    id: 19,
+    sessionKey: "s4",
+    session: "الجلسة 4 • التناسلي الأنثوي",
+    slide: "ورم مصلي في المبيض (كيسة مصلية)",
+    bg: "linear-gradient(155deg, #0e1e36 0%, #090a12 55%, #1c102e 100%)",
+    c1: "#60a5fa", c2: "#a855f7",
+    q: "كل ما يلي صحيح حول «الورم المصلي في المبيض (كيسة مصلية)» عدا:",
+    options: [
+      "تبطن جدار الكيسة ظهارة مطبقة متقرنة عالية تحوي كيراتين وعلامات كشم خلوي",
+      "يتألف من طبقتين أساسيتين",
+      "الطبقة الأولى هي جدار الكيسة الليفي",
+      "الطبقة الثانية تبطن جدار الكيسة بصف واحد من خلايا مصلية مكعبة أو أسطوانية منخفضة غامقة هيماتوكسيلينية"
+    ],
+    ans: 0,
+    exp: "الكيسة المصلية مبطنة بصف واحد من خلايا مصلية مكعبة أو أسطوانية منخفضة لونها غامق هيماتوكسيليني، وليست ظهارة مطبقة متقرنة.",
+    notes: [
+      "يتألف من طبقتين:",
+      "الأولى: هي جدار الكيسة الليفي.",
+      "الثانية: تبطن جدار الكيسة وتتألف من صف واحد من الخلايا المصلية مكعبة أو أسطوانية منخفضة لونها غامق هيماتوكسيليني."
+    ]
+  },
+
+  /* الجلسة الخامسة: آفات الثدي (4 محضرات) */
+  {
+    id: 20,
+    sessionKey: "s5",
+    session: "الجلسة 5 • آفات الثدي",
+    slide: "الورم الغدي الليفي",
+    bg: "linear-gradient(155deg, #290e22 0%, #090a12 55%, #0c212b 100%)",
+    c1: "#f472b6", c2: "#38bdf8",
+    q: "كل ما يلي صحيح حول «الورم الغدي الليفي في الثدي» عدا:",
+    options: [
+      "تشكلات غدية ضمن نسيج ليفي ويكون التكاثر في النسيج الغدي والليفي بنسبة متساوية",
+      "الغدد مبطنة بصف من الخلايا البطانية المستندة إلى طبقة من الخلايا العضلية البشروية",
+      "غزو الأوعية اللمفية في الأدمة مسبباً علامة قشر البرتقال مع ارتشاح النسيج الشحمي",
+      "تكاثر النسيج الغدي الليفي يضغط على الأقنية المتوسعة من الجهتين فتُعطي علامة السحاب أو قرون الوعل"
+    ],
+    ans: 2,
+    exp: "غزو الأوعية اللمفية في الأدمة (علامة قشر البرتقال) وارتشاح الشحم هي صفات «السرطانة القنوية الغازية في الثدي» لا الورم الغدي الليفي.",
+    notes: [
+      "تشكلات غدية ضمن نسيج ليفي.",
+      "الغدد مبطنة بصف من الخلايا البطانية المستندة إلى طبقة من الخلايا العضلية البشروية.",
+      "التكاثر في النسيج الغدي والليفي يكون بنسبة متساوية.",
+      "يضغط تكاثر النسيج الغدي الليفي على الأقنية المتوسعة من الجهتين فتنطبق على بعضها وتعطي علامة السحاب أو قرون الوعل."
+    ]
+  },
+  {
+    id: 21,
+    sessionKey: "s5",
+    session: "الجلسة 5 • آفات الثدي",
+    slide: "سرطانة قنوية غازية في الثدي",
+    bg: "linear-gradient(155deg, #2e0914 0%, #090810 55%, #26140a 100%)",
+    c1: "#ef4444", c2: "#fb923c",
+    q: "كل ما يلي صحيح حول «السرطانة القنوية الغازية في الثدي» عدا:",
+    options: [
+      "قنوات غدية ذات أشكال وأحجام مختلفة وحبال غدية وتجمعات خلوية (أعشاش) وخلايا مفردة",
+      "ارتشاح في النسيج الشحمي مع نوى زائدة الحجم والصباغ (كشم خلوي)",
+      "غزو الأوعية اللمفية في الأدمة وهذا ما يسبب علامة قشر البرتقال",
+      "تكاثر متساوي للنسيج الغدي والليفي يضغط على الأقنية مسبباً علامة قرون الوعل دون غزو"
+    ],
+    ans: 3,
+    exp: "التكاثر المتساوي وعلامة السحاب أو قرون الوعل هي صفات الورم الغدي الليفي السليم وليس السرطانة القنوية الغازية.",
+    notes: [
+      "قنوات غدية ذات أشكال وأحجام مختلفة.",
+      "حبال غدية وتجمعات خلوية (أعشاش) وخلايا مفردة.",
+      "ارتشاح في النسيج الشحمي.",
+      "النوى زائدة الحجم والصباغ (كشم خلوي).",
+      "غزو الأوعية اللمفية في الأدمة (هذا ما يسبب علامة قشر البرتقال)."
+    ]
+  },
+  {
+    id: 22,
+    sessionKey: "s5",
+    session: "الجلسة 5 • آفات الثدي",
+    slide: "الورم الوريقي (العرطل)",
+    bg: "linear-gradient(155deg, #0d261a 0%, #090a11 55%, #241029 100%)",
+    c1: "#22c55e", c2: "#c084fc",
+    q: "كل ما يلي صحيح حول «الورم الوريقي (العرطل) في الثدي» عدا:",
+    options: [
+      "تكاثر في النسيج الضام في الثدي مع توسع قناة أو قناتين",
+      "يقتصر على حؤول غدي مشابه للغدد العرقية ضمن لحمة ليفية تصلبية دون خلايا مغزلية أو حليمات",
+      "مشاهدة كيسات في الورم مع تشكلات حليمية ذات صف واحد من الخلايا",
+      "نسيج ضام مكون من خلايا مغزلية"
+    ],
+    ans: 1,
+    exp: "الحؤول الغدي المشابه للغدد العرقية واللحمة الليفية التصلبية تميّز «الداء الكيسي الليفي»، بينما الورم الوريقي يتميز بنسيج ضام من خلايا مغزلية وكيسات وتشكلات حليمية.",
+    notes: [
+      "تكاثر في النسيج الضام في الثدي مع توسع قناة أو قناتين.",
+      "نشاهد كيسات في الورم مع تشكلات حليمية ذات صف واحد من الخلايا.",
+      "نسيج ضام مكون من خلايا مغزلية."
+    ]
+  },
+  {
+    id: 23,
+    sessionKey: "s5",
+    session: "الجلسة 5 • آفات الثدي",
+    slide: "الداء الكيسي الليفي في الثدي",
+    bg: "linear-gradient(155deg, #102033 0%, #090a12 55%, #291322 100%)",
+    c1: "#38bdf8", c2: "#f472b6",
+    q: "كل ما يلي صحيح حول «الداء الكيسي الليفي في الثدي» عدا:",
+    options: [
+      "غزو الأوعية اللمفية في الأدمة وارتشاح خلايا مفردة ذات كشم خلوي في النسيج الشحمي",
+      "تكاثر غدي وبعض الغدد متوسع بشكل كيسي",
+      "وجود بؤر لفرط تصنع غدي",
+      "حؤول غدي مشابه للغدد العرقية مع لحمة ليفية تصلبية"
+    ],
+    ans: 0,
+    exp: "الداء الكيسي الليفي آفة سليمة لا يحدث فيها غزو للأوعية اللمفية أو ارتشاح كشمي في النسيج الشحمي.",
+    notes: [
+      "تكاثر غدي وبعض الغدد متوسع بشكل كيسي.",
+      "بؤر لفرط تصنع غدي.",
+      "حؤول غدي مشابه للغدد العرقية.",
+      "لحمة ليفية تصلبية."
+    ]
+  },
+
+  /* الجلسة السادسة: جهاز بولي وتناسلي ذكري (4 محضرات) */
+  {
+    id: 24,
+    sessionKey: "s6",
+    session: "الجلسة 6 • بولي وتناسلي ذكري",
+    slide: "فرط التصنع الغدي الموثي (BPH)",
+    bg: "linear-gradient(155deg, #0b1c36 0%, #080910 55%, #0c2624 100%)",
+    c1: "#3b82f6", c2: "#14b8a6",
+    q: "كل ما يلي صحيح حول «فرط التصنع الغدي الموثي (ضخامة البروستات الحميدة)» عدا:",
+    options: [
+      "تكاثر غدي وبعض الغدد متوسعة بشكل كيسي واللمعة ممتلئة بمفرزات كثيفة",
+      "البشرة تتراوح من مكعبة لأسطوانية بشكل استطالات إصبعية باتجاه اللمعة",
+      "نوى مفرطة الكروماتين عشوائية فقدت توضعها القاعدي مع بؤر نخرية وكشم خلوي شديد",
+      "النوى قاعدية نظامية مع تكاثر في النسيج العضلي"
+    ],
+    ans: 2,
+    exp: "في ضخامة البروستات الحميدة تكون النوى «قاعدية نظامية» دون كشم خلوي أو بؤر نخرية.",
+    notes: [
+      "تكاثر غدي وبعض الغدد متوسعة بشكل كيسي.",
+      "اللمعة ممتلئة بمفرزات كثيفة.",
+      "البشرة تتراوح من مكعبة لأسطوانية بشكل استطالات إصبعية باتجاه اللمعة.",
+      "النوى قاعدية نظامية.",
+      "تكاثر في النسيج العضلي."
+    ]
+  },
+  {
+    id: 25,
+    sessionKey: "s6",
+    session: "الجلسة 6 • بولي وتناسلي ذكري",
+    slide: "ورم ويلمز",
+    bg: "linear-gradient(155deg, #1b0e33 0%, #090910 55%, #2b1808 100%)",
+    c1: "#8b5cf6", c2: "#f59e0b",
+    q: "كل ما يلي صحيح حول «ورم ويلمز» عدا:",
+    options: [
+      "وجود كبيبات ابتدائية وأشكال أنبوبية وخلايا تشبه الخلايا المصورة الكلوية",
+      "يمكن أن تتمايز اللحمة إلى نسيج ضام غضروفي أو عظمي أو عضلي أملس أو عضلي مخطط",
+      "نوى مفرطة الكروماتين وهيولى قليلة، ويمكن أن يكون غير متمايز بمعدل انقسام عالٍ وبؤر نخرية",
+      "يتكون حصراً من خلايا كبيرة نيرة غنية بالغليكوجين والشحم ذات نوى صغيرة وشذوذات خلوية قليلة"
+    ],
+    ans: 3,
+    exp: "الخلايا الكبيرة النيرة الغنية بالغليكوجين والشحم ذات النوى الصغيرة والشذوذات الخلوية القليلة هي وصف «سرطان الكلية» وليس ورم ويلمز.",
+    notes: [
+      "كبيبات ابتدائية وأشكال أنبوبية.",
+      "يمكن أن تتمايز اللحمة إلى نسيج ضام غضروفي أو عظمي / عضلي أملس / عضلي مخطط.",
+      "الخلايا تشبه الخلايا المصورة الكلوية.",
+      "نوى مفرطة الكروماتين وهيولى قليلة.",
+      "يمكن أن يكون غير متمايز فيه معدل انقسام عالٍ وبؤر نخرية."
+    ]
+  },
+  {
+    id: 26,
+    sessionKey: "s6",
+    session: "الجلسة 6 • بولي وتناسلي ذكري",
+    slide: "سرطان الكلية",
+    bg: "linear-gradient(155deg, #2b1e08 0%, #090910 55%, #2b0c14 100%)",
+    c1: "#f5c542", c2: "#ef4444",
+    q: "كل ما يلي صحيح حول «سرطان الكلية» عدا:",
+    options: [
+      "وجود أشباه الأنابيب وأشباه الكبب ومحفظة بومان غير ناضجة خلاياها سرطانية مع علامات الكشم الخلوي",
+      "تتمايز لحمته إلى نسيج غضروفي وعظمي وعضلي مخطط وخلاياه مصورة كلوية قليلة الهيولى",
+      "خليط من خلايا نيرة ووردية حبيبية، والخلايا كبيرة نسبياً نيرة غنية بالغليكوجين والشحم بنوى صغيرة وقليل من الشذوذات",
+      "في الورم جيد التمايز نشاهد غدد حليمية وأشكال أنبوبية وسط لحمة غنية بالأوعية الدموية الشعرية"
+    ],
+    ans: 1,
+    exp: "تمايز اللحمة إلى غضروف وعظم وعضل مخطط والخلايا المصورة الكلوية قليلة الهيولى هي من صفات «ورم ويلمز» لا سرطان الكلية.",
+    notes: [
+      "وجود أشباه الأنابيب وأشباه الكبب ومحفظة بومان غير ناضجة، الخلايا المكونة لها سرطانية مع علامات الكشم الخلوي.",
+      "خليط من خلايا نيرة وخلايا وردية حبيبية.",
+      "في الورم جيد التمايز نشاهد غدد حليمية وأشكال أنبوبية وسط لحمة غنية بالأوعية الدموية الشعرية.",
+      "تكون الخلايا كبيرة نسبياً نيرة غنية بالغليكوجين والشحم، النوى صغيرة، ونشاهد القليل من الشذوذات الخلوية."
+    ]
+  },
+  {
+    id: 27,
+    sessionKey: "s6",
+    session: "الجلسة 6 • بولي وتناسلي ذكري",
+    slide: "الورم المنوي في الخصية",
+    bg: "linear-gradient(155deg, #0b2429 0%, #090910 55%, #1e1233 100%)",
+    c1: "#2dd4bf", c2: "#a855f7",
+    q: "كل ما يلي صحيح حول «الورم المنوي في الخصية» عدا:",
+    options: [
+      "بقاء البنية الطبيعية للخصية مع حزم خلايا مغزلية هيولاها شريطية وأجسام فيروكاي",
+      "غياب البنية الطبيعية للخصية وتكاثر لخلايا كبيرة الحجم متشابهة ومدورة ذات غشاء خلوي واضح",
+      "النوى مركزية دائرية الشكل والنويات بداخلها واضحة",
+      "الهيولى رائقة نيرة غنية بالغليكوجين"
+    ],
+    ans: 0,
+    exp: "في الورم المنوي تغيب البنية الطبيعية للخصية وتظهر خلايا كبيرة مدورة نيرة، أما الخلايا المغزلية وأجسام فيروكاي فتميّز الشوانوما.",
+    notes: [
+      "غياب البنية الطبيعية للخصية حيث نجد تكاثر لخلايا كبيرة الحجم متشابهة ومدورة ذات غشاء خلوي واضح.",
+      "النوى مركزية دائرية الشكل والنويات بداخلها واضحة.",
+      "الهيولى رائقة غير واضحة (نيرة) غنية بالغليكوجين."
+    ]
+  },
+
+  /* الجلسة السابعة: درق وجلد (4 محضرات) */
+  {
+    id: 28,
+    sessionKey: "s7",
+    session: "الجلسة 7 • درق وجلد",
+    slide: "الجدرة الدرقية متعددة العقد",
+    bg: "linear-gradient(155deg, #29180a 0%, #090a10 55%, #0c2129 100%)",
+    c1: "#fb923c", c2: "#38bdf8",
+    q: "كل ما يلي صحيح حول «الجدرة الدرقية متعددة العقد» عدا:",
+    options: [
+      "جريبات درقية ذات أشكال وأحجام مختلفة ممتلئة بمواد غروانية",
+      "تكون الجريبات مبطنة بخلايا مكعبة إلى أسطوانية",
+      "رشاحة التهابية غزيرة باللمفاويات تشكل جريبات لمفاوية ذات مراكز منتشة وبؤر تكاثر خلايا هرتل",
+      "وجود بؤر من النزف وبؤر من التكلس"
+    ],
+    ans: 2,
+    exp: "الجريبات اللمفاوية ذات المراكز المنتشة وبؤر تكاثر خلايا هرتل تخص «التهاب الدرق لهاشيموتو» لا الجدرة متعددة العقد.",
+    notes: [
+      "جريبات درقية ذات أشكال وأحجام مختلفة ممتلئة بمواد غروانية.",
+      "تكون الجريبات مبطنة بخلايا مكعبة إلى أسطوانية.",
+      "بؤر من النزف وبؤر من التكلس."
+    ]
+  },
+  {
+    id: 29,
+    sessionKey: "s7",
+    session: "الجلسة 7 • درق وجلد",
+    slide: "التهاب الدرق لهاشيموتو",
+    bg: "linear-gradient(155deg, #240c2e 0%, #090912 55%, #2b0f1b 100%)",
+    c1: "#c084fc", c2: "#f43f5e",
+    q: "كل ما يلي صحيح حول «التهاب الدرق لهاشيموتو» عدا:",
+    options: [
+      "رشاحة التهابية غزيرة غنية باللمفاويات",
+      "جريبات لمفاوية ذات مراكز منتشة (نتوشة)",
+      "بؤر من تكاثر خلايا هرتل",
+      "تشكلات حليمية متشابكة بسويقة ليفية وعائية ونوى فارغة الكروماتين فيها اندحاق وشقوق"
+    ],
+    ans: 3,
+    exp: "التشكلات الحليمية المتشابكة والنوى الفارغة ذات الشقوق والاندحاق تخص «الكارسينوما الحليمية في الغدة الدرقية» لا هاشيموتو.",
+    notes: [
+      "رشاحة التهابية غزيرة غنية باللمفاويات.",
+      "جريبات لمفاوية ذات مراكز منتشة (نتوشة).",
+      "بؤر من تكاثر خلايا هرتل."
+    ]
+  },
+  {
+    id: 30,
+    sessionKey: "s7",
+    session: "الجلسة 7 • درق وجلد",
+    slide: "السرطانة قاعدية الخلايا في الجلد (BCC)",
+    bg: "linear-gradient(155deg, #0d1633 0%, #090910 55%, #2b0d1e 100%)",
+    c1: "#6366f1", c2: "#ec4899",
+    q: "كل ما يلي صحيح حول «السرطانة قاعدية الخلايا في الجلد (BCC)» عدا:",
+    options: [
+      "مشاهدة تقرح الجلد وكتل من الخلايا القاعدية المحاطة بسور من الخلايا العالية",
+      "كتل مرتشحة من الخلايا الشائكة غير النموذجية يوجد في مركزها كميات من الكيراتين",
+      "تكون الكتل محاطة بمنطقة فارغة عادة",
+      "تبدي الخلايا زيادة في حجم النوى وفرطاً في تصبغها مع انقسامات عديدة"
+    ],
+    ans: 1,
+    exp: "كتل الخلايا الشائكة غير النموذجية الحاوية على الكيراتين في مركزها تخص «السرطان شائك الخلايا SCC» لا BCC.",
+    notes: [
+      "نشاهد تقرح الجلد.",
+      "كتل من الخلايا القاعدية المحاطة بسور من الخلايا العالية.",
+      "تكون الكتل محاطة بمنطقة فارغة عادة.",
+      "تبدي الخلايا زيادة في حجم النوى وفرط في تصبغها مع انقسامات عديدة."
+    ]
+  },
+  {
+    id: 31,
+    sessionKey: "s7",
+    session: "الجلسة 7 • درق وجلد",
+    slide: "الوحمات داخل الأدمة",
+    bg: "linear-gradient(155deg, #24160a 0%, #0a0910 55%, #191c2b 100%)",
+    c1: "#d97706", c2: "#94a3b8",
+    q: "كل ما يلي صحيح حول «الوحمات داخل الأدمة» عدا:",
+    options: [
+      "تقرح الجلد وكتل قاعدية محاطة بسور من الخلايا العالية ومنطقة فارغة مع انقسامات عديدة",
+      "تتكون من أعشاش من خلايا وحمية ضمن الأدمة",
+      "تحوي الخلايا الميلانينية على كميات مختلفة من الميلانين",
+      "قد نشاهد زيادة بسيطة في الخلايا الميلانينية في الطبقة القاعدية"
+    ],
+    ans: 0,
+    exp: "تقرح الجلد وكتل الخلايا القاعدية المحاطة بسور ومنطقة فارغة والانقسامات العديدة تخص BCC وليست الوحمات داخل الأدمة.",
+    notes: [
+      "تتكون من أعشاش من خلايا وحمية ضمن الأدمة.",
+      "تحوي الخلايا الميلانينية على كميات مختلفة من الميلانين.",
+      "قد نشاهد زيادة بسيطة في الخلايا الميلانينية في الطبقة القاعدية."
+    ]
+  },
+
+  /* الجلسة الثامنة: رئة وجلد ودرق (4 محضرات) */
+  {
+    id: 32,
+    sessionKey: "s8",
+    session: "الجلسة 8 • رئة وجلد ودرق",
+    slide: "ذات الرئة والقصبات",
+    bg: "linear-gradient(155deg, #0b2433 0%, #090a10 55%, #2b0e14 100%)",
+    c1: "#38bdf8", c2: "#f87171",
+    q: "كل ما يلي صحيح حول «ذات الرئة والقصبات» عدا:",
+    options: [
+      "رشاحة التهابية غنية بالعدلات ضمن الحويصلات الرئوية وحولها",
+      "وجود البالعات الكبيرة ضمن الحويصلات الرئوية وحولها",
+      "كتلة أو بوليب ضمن لمعة القصبة مغطى ببشرة سليمة مؤلف من فصوص وحبال خلايا منتظمة",
+      "احتقان وعائي شديد مع إمكانية وجود مناطق من النزف والنخر النسيجي"
+    ],
+    ans: 2,
+    exp: "الكتلة أو البوليب ضمن لمعة القصبة المغطى ببشرة سليمة وفصوص الخلايا المنتظمة هي وصف «الكارسينوئيد القصبي» لا ذات الرئة والقصبات.",
+    notes: [
+      "تشاهد رشاحة التهابية غنية بالعدلات والبالعات الكبيرة ضمن الحويصلات الرئوية وحولها.",
+      "احتقان وعائي شديد مع إمكانية وجود مناطق من النزف والنخر النسيجي."
+    ]
+  },
+  {
+    id: 33,
+    sessionKey: "s8",
+    session: "الجلسة 8 • رئة وجلد ودرق",
+    slide: "الكارسينوئيد القصبي",
+    bg: "linear-gradient(155deg, #2b1224 0%, #090910 55%, #122133 100%)",
+    c1: "#f472b6", c2: "#60a5fa",
+    q: "كل ما يلي صحيح حول «الكارسينوئيد القصبي» عدا:",
+    options: [
+      "يتظاهر بشكل كتلة أو بوليب ضمن لمعة القصبة مغطى ببشرة سليمة عادة",
+      "نسيجياً يوجد فصوص من خلايا متراصة أو حبال أو أشكال بشكل زهرة مفصولة بقليل من نسيج ضام وعائي",
+      "غالباً ما تكون الخلايا منتظمة وتحوي نوى متشابهة مع سيتوبلازما زهرية متوسطة الكمية",
+      "رشاحة غزيرة من العدلات والبالعات الكبيرة تملأ الحويصلات الرئوية مع احتقان وعائي شديد ونخر"
+    ],
+    ans: 3,
+    exp: "الرشاحة الغزيرة من العدلات والبالعات الكبيرة ضمن الحويصلات والاحتقان الوعائي الشديد تخص «ذات الرئة والقصبات» لا الكارسينوئيد القصبي.",
+    notes: [
+      "يتظاهر بشكل كتلة أو بوليب ضمن لمعة القصبة مغطى ببشرة سليمة عادة.",
+      "نسيجياً: فصوص من خلايا متراصة بجانب بعضها أو حبال أو أشكال بشكل زهرة مفصولة عن بعضها بكمية قليلة من نسيج ضام وعائي.",
+      "غالباً ما تكون الخلايا منتظمة وتحوي نوى متشابهة مع سيتوبلازما زهرية متوسطة الكمية."
+    ]
+  },
+  {
+    id: 34,
+    sessionKey: "s8",
+    session: "الجلسة 8 • رئة وجلد ودرق",
+    slide: "سرطان شائك الخلايا في الجلد (SCC)",
+    bg: "linear-gradient(155deg, #2e0b16 0%, #090910 55%, #2b1d08 100%)",
+    c1: "#fb7185", c2: "#f5c542",
+    q: "كل ما يلي صحيح حول «سرطان شائك الخلايا في الجلد (SCC)» عدا:",
+    options: [
+      "غالباً ما يتوضع في الوجه بمكان التقاء الجلد والمخاطية (شفة، جفن، أنف)",
+      "أعشاش من خلايا وحمية سليمة ضمن الأدمة تحوي ميلانين دون تقرح أو انقسامات عديدة",
+      "كتل مرتشحة من الخلايا الشائكة غير النموذجية وغالباً ما يوجد في مركزها كميات من الكيراتين",
+      "خلايا كبيرة بنوى زائدة الحجم والصباغ ونوية واضحة وانقسامات عديدة تترافق غالباً مع رشاحة لمفاوية غزيرة"
+    ],
+    ans: 1,
+    exp: "أعشاش الخلايا الوحمية السليمة الحاوية على الميلانين هي صفة «الوحمات داخل الأدمة»، بينما SCC ورم خبيث يرتشح بكتل خلايا شائكة وكيراتين.",
+    notes: [
+      "غالباً ما يتوضع في الوجه بمكان التقاء الجلد والمخاطية (شفة، جفن، أنف).",
+      "كتل مرتشحة من الخلايا الشائكة غير النموذجية وغالباً ما يوجد في مركزها كميات من الكيراتين.",
+      "الخلايا كبيرة ذات نوى زائدة الحجم والصباغ مع نوية واضحة في كل منها مع انقسامات عديدة.",
+      "غالباً ما يترافق مع رشاحة التهابية غزيرة من اللمفاويات."
+    ]
+  },
+  {
+    id: 35,
+    sessionKey: "s8",
+    session: "الجلسة 8 • رئة وجلد ودرق",
+    slide: "كارسينوما حليمية في الغدة الدرقية",
+    bg: "linear-gradient(155deg, #1b0f36 0%, #090a12 55%, #0c262b 100%)",
+    c1: "#a78bfa", c2: "#22d3ee",
+    q: "كل ما يلي صحيح حول «الكارسينوما الحليمية في الغدة الدرقية» عدا:",
+    options: [
+      "تتميز بجريبات لمفاوية غزيرة ذات مراكز منتشة وبؤر تكاثر لخلايا هرتل دون تشكلات حليمية",
+      "تشكلات حليمية متشابكة مكونة من سويقة ليفية وعائية مغطاة بصف أو أكثر من خلايا مكعبة الشكل",
+      "اندحاق وشقوق في النوى مع كروماتين متناثر بشكل رقيق معطياً منظراً فارغاً",
+      "إمكانية وجود تراكيب كلسية متعددة المراكز"
+    ],
+    ans: 0,
+    exp: "الجريبات اللمفاوية ذات المراكز المنتشة وبؤر خلايا هرتل تخص التهاب الدرق لهاشيموتو، أما الكارسينوما الحليمية فتمتاز بالحليمات والنوى الفارغة ذات الشقوق والتراكيب الكلسية.",
+    notes: [
+      "تشكلات حليمية متشابكة مكونة من سويقة ليفية وعائية مغطاة بصف أو أكثر من خلايا مكعبة الشكل.",
+      "اندحاق وشقوق في النوى.",
+      "تتصف النوى بوجود كروماتين متناثر بشكل رقيق معطياً منظراً فارغاً.",
+      "إمكانية وجود تراكيب كلسية متعددة المراكز."
+    ]
+  },
+
+  /* الجلسة التاسعة (3 محضرات) */
+  {
+    id: 36,
+    sessionKey: "s9",
+    session: "الجلسة 9 • قرحة وشوانوما",
+    slide: "القرحة المعدية",
+    bg: "linear-gradient(155deg, #2b0f0a 0%, #0a0910 55%, #261b0a 100%)",
+    c1: "#f97316", c2: "#f5c542",
+    q: "كل ما يلي صحيح حول «القرحة المعدية» عدا:",
+    options: [
+      "حوافها واضحة الحدود مع غياب في المخاطية وجزء من تحت المخاطية أو أعمق",
+      "حطام نخري فيبريني في مركز القرحة ورشاحة التهابية غزيرة حادة ومزمنة خاصة العدلات (غير نوعية)",
+      "حزم متقطعة من خلايا مغزلية ذات هيولى شريطية وتوضعات للنوى بشكل سياج (أجسام فيروكاي)",
+      "ندبة ليفية كولاجينية مع نسيج/ورم وعائي حبيبي واحتقان شديد ووذمة وأوعية دموية ونزف"
+    ],
+    ans: 2,
+    exp: "حزم الخلايا المغزلية وأجسام فيروكاي تميّز «الشوانوما (ورم غمد شوان)» وليست القرحة المعدية.",
+    notes: [
+      "حوافها واضحة الحدود.",
+      "غياب في المخاطية وجزء من تحت المخاطية أو أعمق.",
+      "حطام نخري فيبريني / نخر فيبريني في مركز القرحة.",
+      "رشاحة التهابية غزيرة حادة ومزمنة خاصة العدلات (رشاحة غير نوعية).",
+      "ندبة ليفية كولاجينية.",
+      "ورم/نسيج وعائي حبيبي مع احتقان شديد ووذمة وأوعية دموية ونزف."
+    ]
+  },
+  {
+    id: 37,
+    sessionKey: "s9",
+    session: "الجلسة 9 • قرحة وشوانوما",
+    slide: "الشوانوما (ورم غمد شوان)",
+    bg: "linear-gradient(155deg, #102433 0%, #090910 55%, #241033 100%)",
+    c1: "#38bdf8", c2: "#c084fc",
+    q: "كل ما يلي صحيح حول «الشوانوما (ورم غمد شوان)» عدا:",
+    options: [
+      "حزم متقطعة من الخلايا المغزلية في جميع الاتجاهات",
+      "توضعات للنوى بشكل سياج تعرف بأجسام فيروكاي",
+      "خلايا ذات هيولى شريطية الشكل حامضية التلون نواها مغزلية مركزية",
+      "غياب المخاطية مع نخر فيبريني ورشاحة غزيرة من العدلات وندبة كولاجينية"
+    ],
+    ans: 3,
+    exp: "غياب المخاطية والنخر الفيبريني ورشاحة العدلات والندبة الكولاجينية هي طبقات «القرحة المعدية» وليست الشوانوما.",
+    notes: [
+      "حزم متقطعة من الخلايا المغزلية في جميع الاتجاهات.",
+      "توضعات للنوى بشكل سياج (أجسام فيروكاي).",
+      "خلايا ذات هيولى شريطية الشكل حامضية التلون نواها مغزلية مركزية."
+    ]
+  },
+  {
+    id: 38,
+    sessionKey: "s9",
+    session: "الجلسة 9 • قرحة وشوانوما",
+    slide: "شوانوما خبيث",
+    bg: "linear-gradient(155deg, #2b0816 0%, #09080f 55%, #1c0c2e 100%)",
+    c1: "#ef4444", c2: "#a855f7",
+    q: "كل ما يلي صحيح حول «الشوانوما الخبيث» عدا:",
+    options: [
+      "يتميز بخلوية زائدة للورم",
+      "قلة الخلوية وغياب النويات الواضحة وبقاء النوى صغيرة دون أي زيادة في الحجم",
+      "زيادة في حجم النوى مع وجود نويات واضحة",
+      "يمثل النظير الخبيث لورم غمد شوان ذي الخلايا المغزلية"
+    ],
+    ans: 1,
+    exp: "الشوانوما الخبيث يتميز على العكس تماماً بـ «خلوية زائدة للورم» و«زيادة في حجم النوى مع وجود نويات واضحة».",
+    notes: [
+      "خلوية زائدة للورم.",
+      "زيادة في حجم النوى مع وجود نويات واضحة.",
+      "وجود انقسامات (قليلة إلى واضحة حسب التمايز)."
+    ]
+  }
+];
+
+const SESSIONS = [
+  { key: "all", label: "🔥 الكل (39 محضراً)" },
+  { key: "saved", label: "⭐ المحفوظات للمراجعة" },
+  { key: "s0", label: "📌 مقدمة الكشم الخلوي" },
+  { key: "s1", label: "1️⃣ العقد اللمفية (4)" },
+  { key: "s2", label: "2️⃣ كولونات وأوعية (6)" },
+  { key: "s3", label: "3️⃣ الكبد وغدد لعابية (5)" },
+  { key: "s4", label: "4️⃣ التناسلي الأنثوي (4)" },
+  { key: "s5", label: "5️⃣ آفات الثدي (4)" },
+  { key: "s6", label: "6️⃣ بولي وتناسلي ذكري (4)" },
+  { key: "s7", label: "7️⃣ درق وجلد (4)" },
+  { key: "s8", label: "8️⃣ رئة وجلد ودرق (4)" },
+  { key: "s9", label: "9️⃣ قرحة وشوانوما (3)" }
+];
+
+const LETTERS = ["أ", "ب", "ج", "د"];
+
+/* ===== الحالة العامة ===== */
+let currentFilter = "all";
+let activeList = [...ALL_QUESTIONS];
+let answersMap = {}; // id -> chosenIndex
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let soundOn = true;
+let autoScroll = false;
+let following = false;
+let likedIds = new Set(JSON.parse(localStorage.getItem("cortex_reels_likes") || "[]"));
+let savedIds = new Set(JSON.parse(localStorage.getItem("cortex_reels_saved") || "[]"));
+
+/* ===== محرك الصوت (Web Audio API أوفلاين بالكامل) ===== */
+let audioCtx = null;
+function playTone(type) {
+  if (!soundOn) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    if (type === "ok") {
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.14);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+      osc.start(now); osc.stop(now + 0.28);
+    } else if (type === "bad") {
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(210, now);
+      osc.frequency.linearRampToValueAtTime(125, now + 0.22);
+      gain.gain.setValueAtTime(0.13, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+      osc.start(now); osc.stop(now + 0.26);
+    } else if (type === "like") {
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(420, now);
+      osc.frequency.exponentialRampToValueAtTime(760, now + 0.09);
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+      osc.start(now); osc.stop(now + 0.14);
+    }
+  } catch (e) {}
+}
+
+/* ===== إشعار Toast سريع ===== */
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 1900);
+}
+
+/* ===== Confetti خفيف وسريع ===== */
+const cCanvas = document.getElementById("confettiCanvas");
+const cCtx = cCanvas.getContext("2d");
+let particles = [];
+function resizeCanvas() {
+  const shell = document.querySelector(".app-shell");
+  cCanvas.width = shell.clientWidth;
+  cCanvas.height = shell.clientHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+function launchConfetti(count = 40) {
+  const colors = ["#f5c542", "#22c55e", "#ec4899", "#38bdf8", "#a855f7"];
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: cCanvas.width / 2 + (Math.random() - 0.5) * 140,
+      y: cCanvas.height * 0.45,
+      vx: (Math.random() - 0.5) * 9,
+      vy: -Math.random() * 10 - 3,
+      size: Math.random() * 6 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * 360,
+      vr: (Math.random() - 0.5) * 12,
+      life: 1
+    });
+  }
+  if (particles.length === count) animateConfetti();
+}
+
+function animateConfetti() {
+  cCtx.clearRect(0, 0, cCanvas.width, cCanvas.height);
+  particles = particles.filter(p => p.life > 0.02);
+  for (const p of particles) {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.28;
+    p.rot += p.vr;
+    p.life -= 0.016;
+    cCtx.save();
+    cCtx.globalAlpha = p.life;
+    cCtx.translate(p.x, p.y);
+    cCtx.rotate((p.rot * Math.PI) / 180);
+    cCtx.fillStyle = p.color;
+    cCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+    cCtx.restore();
+  }
+  if (particles.length > 0) requestAnimationFrame(animateConfetti);
+}
+
+/* ===== بناء التغذية العمودية ===== */
+const feed = document.getElementById("reelsFeed");
+
+function getFilteredList(key) {
+  if (key === "all") return [...ALL_QUESTIONS];
+  if (key === "saved") return ALL_QUESTIONS.filter(q => savedIds.has(q.id));
+  if (key === "mistakes") return ALL_QUESTIONS.filter(q => answersMap[q.id] !== undefined && answersMap[q.id] !== q.ans);
+  return ALL_QUESTIONS.filter(q => q.sessionKey === key);
+}
+
+function renderFeed(list) {
+  activeList = list;
+  feed.innerHTML = "";
+
+  if (activeList.length === 0) {
+    feed.innerHTML = `
+      <section class="reel-slide" style="padding:24px;">
+        <div class="reel-bg" style="background:linear-gradient(155deg,#181024,#06060b);"></div>
+        <div class="summary-card" style="margin-left:0;">
+          <div style="font-size:44px;">⭐</div>
+          <h2 style="font-size:18px;">لا توجد محضرات في هذه القائمة بعد</h2>
+          <p style="font-size:13px; color:#cbd5e1;">اضغط على أيقونة الحفظ (🔖) على أي سؤال صعب لتجمعه هنا قبل المذاكرة.</p>
+          <button class="primary-btn" onclick="applyFilter('all')">العودة لجميع المحضرات (39)</button>
+        </div>
+      </section>`;
+    updateProgress(0);
+    return;
+  }
+
+  activeList.forEach((item, idx) => {
+    const slide = document.createElement("section");
+    slide.className = "reel-slide";
+    slide.dataset.idx = idx;
+    slide.dataset.qid = item.id;
+
+    const liked = likedIds.has(item.id);
+    const saved = savedIds.has(item.id);
+    const baseLikes = 120 + ((item.id * 17) % 180) + (liked ? 1 : 0);
+
+    // تمييز كلمة "عدا:" باللون الأحمر الجذاب
+    const formattedQ = item.q.replace("عدا:", '<span class="except-tag">عدا:</span>');
+
+    slide.innerHTML = `
+      <div class="reel-bg" style="background:${item.bg}">
+        <div class="orb o1" style="background:${item.c1}"></div>
+        <div class="orb o2" style="background:${item.c2}"></div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-meta">
+          <span class="session-chip">${item.session}</span>
+          <span class="q-counter">${idx + 1} / ${activeList.length}</span>
+        </div>
+        <div class="q-text">${formattedQ}</div>
+        <div class="options-list" id="opts-${item.id}">
+          ${item.options.map((opt, oi) => `
+            <button class="opt-btn" data-oi="${oi}" onclick="handleAnswer(${item.id}, ${oi}, ${idx})">
+              <span class="opt-letter">${LETTERS[oi]}</span>
+              <span>${opt}</span>
+            </button>
+          `).join("")}
+        </div>
+        <div class="feedback-box" id="fb-${item.id}"></div>
+      </div>
+
+      <!-- شريط تفاعل انستغرام الجانبي -->
+      <div class="side-actions">
+        <button class="action-item ${liked ? "liked" : ""}" id="likeBtn-${item.id}" onclick="toggleLike(${item.id})">
+          <div class="action-icon">${liked ? "❤️" : "🤍"}</div>
+          <span class="action-label" id="likeCnt-${item.id}">${baseLikes}</span>
+        </button>
+
+        <button class="action-item" onclick="openNotes(${item.id})">
+          <div class="action-icon">🔬</div>
+          <span class="action-label">المحضر</span>
+        </button>
+
+        <button class="action-item ${saved ? "active" : ""}" id="saveBtn-${item.id}" onclick="toggleSave(${item.id})">
+          <div class="action-icon">${saved ? "🔖" : "📑"}</div>
+          <span class="action-label">${saved ? "محفوظ" : "حفظ"}</span>
+        </button>
+
+        <button class="action-item ${autoScroll ? "active" : ""}" onclick="toggleAutoScroll()">
+          <div class="action-icon">⏩</div>
+          <span class="action-label">تلقائي</span>
+        </button>
+
+        <button class="action-item ${soundOn ? "active" : ""}" onclick="toggleSound()">
+          <div class="action-icon">${soundOn ? "🔊" : "🔇"}</div>
+          <span class="action-label">صوت</span>
+        </button>
+
+        <div class="audio-disc" title="Cortex Audio">🧬</div>
+      </div>
+
+      ${idx === 0 ? `<div class="swipe-hint">⬆️ اسحب لأعلى للمحضر التالي</div>` : ""}
+
+      <!-- تذييل انستغرام -->
+      <div class="reel-footer">
+        <div class="creator-row">
+          <div class="avatar-ring"><div class="avatar-inner">CX</div></div>
+          <div class="creator-name">cortex.team <span class="verified">✓</span></div>
+          <button class="follow-btn ${following ? "following" : ""}" onclick="toggleFollow()">
+            ${following ? "متابَع ✓" : "متابعة"}
+          </button>
+        </div>
+        <div class="caption-line">#التشريح_المرضي_الخاص • محضر: ${item.slide}</div>
+        <div class="audio-bar">
+          <div class="eq-bars"><span></span><span></span><span></span></div>
+          <span>الصوت الأصلي • فريق كورتكس - السنة الرابعة</span>
+        </div>
+      </div>
+    `;
+
+    // دعم الضغط المزدوج للإعجاب (Double Tap to Like)
+    let lastTap = 0;
+    slide.addEventListener("touchend", (e) => {
+      if (e.target.closest("button") || e.target.closest(".q-card")) return;
+      const now = Date.now();
+      if (now - lastTap < 280) {
+        triggerDoubleTapLike(item.id);
+      }
+      lastTap = now;
+    });
+    slide.addEventListener("dblclick", (e) => {
+      if (e.target.closest("button") || e.target.closest(".q-card")) return;
+      triggerDoubleTapLike(item.id);
+    });
+
+    feed.appendChild(slide);
+
+    // إذا كان السؤال قد أُجيب عليه مسبقاً، أظهر حالته
+    if (answersMap[item.id] !== undefined) {
+      paintAnswered(item, answersMap[item.id], false);
+    }
+  });
+
+  // شريحة النتيجة النهائية
+  const endSlide = document.createElement("section");
+  endSlide.className = "reel-slide";
+  endSlide.id = "summarySlide";
+  endSlide.dataset.idx = activeList.length;
+  endSlide.innerHTML = `
+    <div class="reel-bg" style="background:linear-gradient(155deg,#1d1407 0%,#07070c 55%,#210c24 100%)">
+      <div class="orb o1" style="background:#f5c542"></div>
+      <div class="orb o2" style="background:#ec4899"></div>
+    </div>
+    <div class="summary-card">
+      <div style="font-size:13px; color:var(--gold); font-weight:800;">🏁 نهاية الجولة • عملي التشريح المرضي الخاص</div>
+      <div class="score-ring" id="summaryRing"><span class="score-val" id="summaryPct">0%</span></div>
+      <h2 id="summaryHeadline" style="font-size:19px;">أكمل الأسئلة لعرض تقييمك!</h2>
+      <div class="summary-grid">
+        <div class="stat-box"><div class="num" id="sumCorrect">0</div><div class="lbl">صحيح ✅</div></div>
+        <div class="stat-box"><div class="num" id="sumWrong">0</div><div class="lbl">خطأ ❌</div></div>
+        <div class="stat-box"><div class="num" id="sumStreak">0</div><div class="lbl">أعلى سلسلة 🔥</div></div>
+      </div>
+      <button class="primary-btn" onclick="reviewMistakes()">🎯 مراجعة الأخطاء فقط</button>
+      <button class="secondary-btn" onclick="resetQuiz()">🔄 إعادة الاختبار من الصفر</button>
+    </div>
+  `;
+  feed.appendChild(endSlide);
+
+  feed.scrollTo({ top: 0, behavior: "instant" });
+  updateSummary();
+  updateProgress(0);
+}
+
+/* ===== معالجة الإجابة ===== */
+function handleAnswer(qid, chosenIdx, slideIdx) {
+  if (answersMap[qid] !== undefined) return;
+  const item = ALL_QUESTIONS.find(q => q.id === qid);
+  answersMap[qid] = chosenIdx;
+
+  const isRight = chosenIdx === item.ans;
+  if (isRight) {
+    score++;
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    playTone("ok");
+    if (streak % 3 === 0) launchConfetti(32);
+  } else {
+    streak = 0;
+    playTone("bad");
+  }
+
+  document.getElementById("scoreVal").textContent = score;
+  document.getElementById("streakVal").textContent = streak;
+  paintAnswered(item, chosenIdx, true);
+  updateSummary();
+
+  if (autoScroll && slideIdx + 1 <= activeList.length) {
+    setTimeout(() => {
+      const next = feed.children[slideIdx + 1];
+      if (next) next.scrollIntoView({ behavior: "smooth" });
+    }, 1700);
+  }
+}
+
+function paintAnswered(item, chosenIdx, animate) {
+  const container = document.getElementById(`opts-${item.id}`);
+  if (!container) return;
+  const btns = container.querySelectorAll(".opt-btn");
+  btns.forEach((b, i) => {
+    b.disabled = true;
+    if (i === item.ans) b.classList.add("correct");
+    else if (i === chosenIdx) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+
+  const fb = document.getElementById(`fb-${item.id}`);
+  const isRight = chosenIdx === item.ans;
+  fb.innerHTML = `
+    <strong>${isRight ? "✅ إجابة دقيقة! (هذا هو الاستثناء الصحيح)" : "❌ انتبه للمطب الامتحاني!"}</strong><br>
+    ${item.exp}
+    <div style="margin-top:6px; color:#94a3b8; font-size:11.5px;">💡 اضغط على أيقونة (🔬 المحضر) يساراً لقراءة كل الموجودات النسيجية للـ ${item.slide}.</div>
+  `;
+  fb.classList.add("show");
+}
+
+/* ===== التفاعلات الجانبية ===== */
+function toggleLike(qid) {
+  const btn = document.getElementById(`likeBtn-${qid}`);
+  const cnt = document.getElementById(`likeCnt-${qid}`);
+  const base = 120 + ((qid * 17) % 180);
+  if (likedIds.has(qid)) {
+    likedIds.delete(qid);
+    btn.classList.remove("liked");
+    btn.querySelector(".action-icon").textContent = "🤍";
+    cnt.textContent = base;
+  } else {
+    likedIds.add(qid);
+    btn.classList.add("liked");
+    btn.querySelector(".action-icon").textContent = "❤️";
+    cnt.textContent = base + 1;
+    playTone("like");
+  }
+  localStorage.setItem("cortex_reels_likes", JSON.stringify([...likedIds]));
+}
+
+function triggerDoubleTapLike(qid) {
+  const heart = document.getElementById("bigHeart");
+  heart.classList.remove("burst");
+  void heart.offsetWidth;
+  heart.classList.add("burst");
+  playTone("like");
+  if (!likedIds.has(qid)) toggleLike(qid);
+}
+
+function toggleSave(qid) {
+  const btn = document.getElementById(`saveBtn-${qid}`);
+  if (savedIds.has(qid)) {
+    savedIds.delete(qid);
+    btn.classList.remove("active");
+    btn.querySelector(".action-icon").textContent = "📑";
+    btn.querySelector(".action-label").textContent = "حفظ";
+    showToast("تمت الإزالة من المحفوظات");
+  } else {
+    savedIds.add(qid);
+    btn.classList.add("active");
+    btn.querySelector(".action-icon").textContent = "🔖";
+    btn.querySelector(".action-label").textContent = "محفوظ";
+    playTone("like");
+    showToast("⭐ حُفظ المحضر للمراجعة");
+  }
+  localStorage.setItem("cortex_reels_saved", JSON.stringify([...savedIds]));
+}
+
+function toggleAutoScroll() {
+  autoScroll = !autoScroll;
+  document.querySelectorAll(".side-actions").forEach(bar => {
+    bar.children[3].classList.toggle("active", autoScroll);
+  });
+  showToast(autoScroll ? "⏩ التمرير التلقائي مفعّل" : "⏸️ التمرير التلقائي متوقف");
+}
+
+function toggleSound() {
+  soundOn = !soundOn;
+  document.querySelectorAll(".side-actions").forEach(bar => {
+    const b = bar.children[4];
+    b.classList.toggle("active", soundOn);
+    b.querySelector(".action-icon").textContent = soundOn ? "🔊" : "🔇";
+  });
+  showToast(soundOn ? "🔊 الصوت مفعّل" : "🔇 تم كتم الصوت");
+}
+
+function toggleFollow() {
+  following = !following;
+  document.querySelectorAll(".follow-btn").forEach(b => {
+    b.classList.toggle("following", following);
+    b.textContent = following ? "متابَع ✓" : "متابعة";
+  });
+  if (following) showToast("أصبحت تتابع @cortex.team 🧬");
+}
+
+/* ===== النوافذ السفلية (فلتر الجلسات + الموجودات النسيجية) ===== */
+const backdrop = document.getElementById("sheetBackdrop");
+const filterSheet = document.getElementById("filterSheet");
+const notesSheet = document.getElementById("notesSheet");
+
+function closeSheets() {
+  backdrop.classList.remove("open");
+  filterSheet.classList.remove("open");
+  notesSheet.classList.remove("open");
+}
+
+backdrop.addEventListener("click", closeSheets);
+
+document.getElementById("openFilterBtn").addEventListener("click", () => {
+  const grid = document.getElementById("filterGrid");
+  grid.innerHTML = SESSIONS.map(s => `
+    <button class="filter-chip ${currentFilter === s.key ? "active" : ""}" onclick="applyFilter('${s.key}')">
+      ${s.label}
+    </button>
+  `).join("");
+  backdrop.classList.add("open");
+  filterSheet.classList.add("open");
+});
+
+function applyFilter(key) {
+  currentFilter = key;
+  closeSheets();
+  renderFeed(getFilteredList(key));
+  const found = SESSIONS.find(s => s.key === key);
+  showToast(found ? `📂 ${found.label}` : "🎯 مراجعة الأخطاء");
+}
+
+function openNotes(qid) {
+  const item = ALL_QUESTIONS.find(q => q.id === qid);
+  document.getElementById("notesTitle").textContent = `🔬 ${item.slide}`;
+  document.getElementById("notesList").innerHTML = item.notes.map(n => `<li>${n}</li>`).join("");
+  backdrop.classList.add("open");
+  notesSheet.classList.add("open");
+}
+
+/* ===== التلخيص وشريط التقدم ===== */
+function updateSummary() {
+  let correct = 0, wrong = 0;
+  activeList.forEach(q => {
+    if (answersMap[q.id] !== undefined) {
+      if (answersMap[q.id] === q.ans) correct++;
+      else wrong++;
+    }
+  });
+  const total = activeList.length || 1;
+  const pct = Math.round((correct / total) * 100);
+
+  const ring = document.getElementById("summaryRing");
+  if (!ring) return;
+  ring.style.background = `conic-gradient(var(--gold) ${pct * 3.6}deg, rgba(255,255,255,0.12) 0deg)`;
+  document.getElementById("summaryPct").textContent = `${pct}%`;
+  document.getElementById("sumCorrect").textContent = correct;
+  document.getElementById("sumWrong").textContent = wrong;
+  document.getElementById("sumStreak").textContent = bestStreak;
+
+  const head = document.getElementById("summaryHeadline");
+  if (correct + wrong === 0) head.textContent = "اسحب للأعلى وابدأ التحدي! 🚀";
+  else if (pct >= 90) head.textContent = "🔥 وحش التشريح المرضي! جاهز للعلامة التامة";
+  else if (pct >= 70) head.textContent = "💪 أداء قوي جداً! راجع أخطاءك وتضمنها";
+  else head.textContent = "📚 بداية ممتازة! استخدم زر مراجعة الأخطاء لتثبيت المحضرات";
+}
+
+function reviewMistakes() {
+  const list = getFilteredList("mistakes");
+  if (list.length === 0) {
+    showToast("🎉 لا توجد أخطاء مسجلة حالياً!");
+    return;
+  }
+  list.forEach(q => delete answersMap[q.id]);
+  currentFilter = "mistakes";
+  renderFeed(list);
+  showToast(`🎯 مراجعة ${list.length} محضرات أخطأت بها`);
+}
+
+function resetQuiz() {
+  answersMap = {};
+  score = 0;
+  streak = 0;
+  bestStreak = 0;
+  document.getElementById("scoreVal").textContent = 0;
+  document.getElementById("streakVal").textContent = 0;
+  renderFeed(getFilteredList(currentFilter === "mistakes" ? "all" : currentFilter));
+  showToast("🔄 تمت إعادة الجولة بالكامل");
+}
+
+function updateProgress(slideIdx) {
+  const pct = activeList.length ? Math.min(100, Math.round(((slideIdx + 1) / activeList.length) * 100)) : 0;
+  document.getElementById("progressFill").style.width = `${pct}%`;
+}
+
+let confettiFiredAtEnd = false;
+feed.addEventListener("scroll", () => {
+  const h = feed.clientHeight || 1;
+  const idx = Math.round(feed.scrollTop / h);
+  updateProgress(idx);
+  if (idx === activeList.length && activeList.length > 0 && !confettiFiredAtEnd) {
+    confettiFiredAtEnd = true;
+    launchConfetti(60);
+    setTimeout(() => (confettiFiredAtEnd = false), 4000);
+  }
+}, { passive: true });
+
+/* دعم أزرار الأسهم على الكمبيوتر */
+window.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowDown") {
+    feed.scrollBy({ top: feed.clientHeight, behavior: "smooth" });
+  } else if (e.key === "ArrowUp") {
+    feed.scrollBy({ top: -feed.clientHeight, behavior: "smooth" });
+  }
+});
+
+/* تشغيل أولي */
+renderFeed(ALL_QUESTIONS);
+</script>
+</body>
+</html>
